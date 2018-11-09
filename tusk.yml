@@ -1,0 +1,15 @@
+tasks:
+  build:
+    usage: Build the application
+    options:
+      name:
+        usage: name of output binary
+        default: changelog
+    run:
+      - command:
+        - dep ensure -vendor-only
+        - go build -o build/${name} main.go
+  test:
+    usage: Run unit tests for entire repository
+    run:
+      - command: go test -v ./...
