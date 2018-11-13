@@ -24,8 +24,8 @@ type Entry struct {
 }
 
 var (
-	//Added New Feature
-	Added = Changelog{Name: "added", Description: "New feature"}
+	//New New Feature
+	New = Changelog{Name: "new", Description: "New feature"}
 	//Fixed Bug Fix
 	Fixed = Changelog{Name: "fixed", Description: "Bug fix"}
 	//Changed Feature change
@@ -68,7 +68,7 @@ func CreateChangelogEntry(file Entry) error {
 		return err
 	}
 
-	yaml := fmt.Sprintf("---\ntitle: %s\nauthor: %s\ntype: %s\n", file.Title, file.Author, file.Type.Name)
+	yaml := fmt.Sprintf("-\n\ttitle: %s\n\tauthor: %s\n\ttype: %s\n", file.Title, file.Author, file.Type.Name)
 	if _, err := f.WriteString(yaml); err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func validAuthor(author string) bool {
 
 // CreateChangelog Gather all unreleased entries and create latest log
 func CreateChangelog() error {
-	
+
 	files, err := ioutil.ReadDir(DefaultChangelogFolder)
 	if err != nil {
 		return fmt.Errorf("Unable to read files in unreleased folder: %s", err.Error())

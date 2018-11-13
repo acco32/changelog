@@ -13,3 +13,7 @@ tasks:
     usage: Run unit tests for entire repository
     run:
       - command: go test -v ./...
+  clean:
+    usage: Remove all build artifacts
+    run:
+        - rm -fr build

@@ -1,7 +1,7 @@
 package changelog_test
 
 import (
-	"changelog/changelog"
+	"github.com/acco32/changelog/changelog"
 	"os"
 	"testing"
 

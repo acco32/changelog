@@ -1,7 +1,7 @@
 package main
 
 import (
-	"changelog/cmd"
+	"github.com/acco32/changelog/cmd"
 )
 
 func main() {
