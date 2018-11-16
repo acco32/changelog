@@ -25,7 +25,6 @@ var AddCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := add(args); err != nil {
-			// cmd.SetOutput(os.Stdout)
 			cmd.Println(err.Error())
 		}
 	},
@@ -60,5 +59,5 @@ func add(args []string) error {
 	}
 
 	entry := changelog.Entry{Title: title, Author: author, Type: entryType}
-	return changelog.CreateChangelogEntry(entry)
+	return changelog.CreateChangelogEntry(entry, changelog.DefaultChangelogFolder)
 }

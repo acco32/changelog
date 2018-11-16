@@ -46,7 +46,7 @@ var (
 const DefaultChangelogFolder = "unreleased"
 
 //CreateChangelogEntry Create a new entry for the changelog. Usually done on a new branch.
-func CreateChangelogEntry(file Entry) error {
+func CreateChangelogEntry(file Entry, unreleasedFolder string) error {
 
 	if !validTitle(file.Title) {
 		return fmt.Errorf("Title must be between 1 and 120 characters (including spaces). Current Length %d", len(file.Title))
@@ -56,12 +56,12 @@ func CreateChangelogEntry(file Entry) error {
 		return fmt.Errorf("Author must be between 1 and 80 characters. Current Length %d", len(file.Author))
 	}
 
-	filename := path.Join(DefaultChangelogFolder, strings.ToLower(strings.Replace(file.Title, " ", "_", -1))+".yml")
+	filename := path.Join(unreleasedFolder, strings.ToLower(strings.Replace(file.Title, " ", "_", -1))+".yml")
 	if fileExists(filename) {
 		return errors.New("File already exists")
 	}
 
-	os.Mkdir(DefaultChangelogFolder, 0777)
+	os.Mkdir(unreleasedFolder, 0777)
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -96,17 +96,26 @@ func validAuthor(author string) bool {
 }
 
 // CreateChangelog Gather all unreleased entries and create latest log
-func CreateChangelog() error {
+func CreateChangelog(unreleasedFolder string) error {
 
-	files, err := ioutil.ReadDir(DefaultChangelogFolder)
+	_, err := os.Stat(unreleasedFolder)
+	if err != nil {
+		return fmt.Errorf("\"%s\" folder does not exist", unreleasedFolder)
+	}
+
+	files, err := ioutil.ReadDir(unreleasedFolder)
 	if err != nil {
 		return fmt.Errorf("Unable to read files in unreleased folder: %s", err.Error())
 	}
 
+  if len(files) == 0 {
+    return fmt.Errorf("At least one file must exist")
+  }
+
 	var buffer bytes.Buffer
 
 	for _, f := range files {
-		dat, err := ioutil.ReadFile(path.Join(DefaultChangelogFolder, f.Name()))
+		dat, err := ioutil.ReadFile(path.Join(unreleasedFolder, f.Name()))
 		if err != nil {
 			return fmt.Errorf("Error reading file %s", f.Name())
 		}
@@ -114,7 +123,7 @@ func CreateChangelog() error {
 		buffer.WriteString(string(dat))
 	}
 
-	cl, _ := os.Create(path.Join(DefaultChangelogFolder, "changelog.yml"))
+	cl, _ := os.Create("changelog.yml")
 	defer cl.Close()
 
 	cl.Write(buffer.Bytes())
