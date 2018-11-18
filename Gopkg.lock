@@ -34,6 +34,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:ae5581ad198bcdab376525bc29a2f9fe245d1ad477d21ab787c94d47a8790815"
+  name = "github.com/smallfish/simpleyaml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a32031077861b1fbdf988d2c0865e98ec832dd4c"
+
+[[projects]]
   digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
   name = "github.com/spf13/cobra"
   packages = ["."]
@@ -57,11 +65,20 @@
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
 
+[[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/dchest/uniuri",
+    "github.com/smallfish/simpleyaml",
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",
   ]

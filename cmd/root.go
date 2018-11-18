@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +18,6 @@ var rootCmd = &cobra.Command{
 // Execute Entry Point
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		displayErrorAndExit(rootCmd, err)
 	}
 }

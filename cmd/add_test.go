@@ -11,7 +11,6 @@ import (
 	"github.com/acco32/changelog/cmd"
 )
 
-
 func TestErrorWhenNoArgs(t *testing.T) {
 	addRootCmd := &cobra.Command{Use: "changelog"}
 	addRootCmd.AddCommand(cmd.AddCmd)
@@ -19,6 +18,10 @@ func TestErrorWhenNoArgs(t *testing.T) {
 	_, out, err := executeCommandC(addRootCmd, "add")
 	assert.Contains(t, out, "Error")
 	assert.NotNil(t, err)
+}
+
+func init() {
+	os.RemoveAll(changelog.DefaultChangelogFolder)
 }
 
 func TestNoTitleError(t *testing.T) {
@@ -43,13 +46,14 @@ func TestNoAuthorError(t *testing.T) {
 }
 
 func TestErrorWithUnknownType(t *testing.T) {
-	addRootCmd := &cobra.Command{Use: "changelog"}
+	addRootCmd := &cobra.Command{Use: "changelog", Args: cobra.ExactArgs(1)}
 	addRootCmd.AddCommand(cmd.AddCmd)
 
-	_, out, err := executeCommandC(addRootCmd, "add", "blah", "-t title", "-a author")
+	_, out, err1 := executeCommandC(addRootCmd, "add", "blah", "-t title", "-a author")
 	assert.Contains(t, out, "Unrecognized format entered")
-	assert.Nil(t, err)
+	assert.Contains(t, out, "Unrecognized format entered")
+	assert.Nil(t, err1)
 
-	_, err = os.Stat(changelog.DefaultChangelogFolder)
-	assert.True(t, os.IsNotExist(err))
+	_, err2 := os.Stat(changelog.DefaultChangelogFolder)
+	assert.True(t, os.IsNotExist(err2))
 }

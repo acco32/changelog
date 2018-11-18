@@ -1,5 +1,7 @@
 # Changelog
 
+![Licence](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)
+
 A command line utility to create changelogs. A variation of the changelog utility used in [gitlab](https://gitlab.com)
 
 ## Pre-requisites

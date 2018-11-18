@@ -12,9 +12,8 @@ var changelogType changelog.Changelog
 var title string
 
 func init() {
-	AddCmd.Flags().StringVarP(&author, "author", "a", "", "Individual creating feature.")
+  AddCmd.Flags().StringVarP(&author, "author", "a", "", "Individual creating feature.")
 	AddCmd.MarkFlagRequired("author")
-
 	AddCmd.Flags().StringVarP(&title, "title", "t", "", "Feature description. Space will be replaced by underscores.")
 	AddCmd.MarkFlagRequired("title")
 }
@@ -25,7 +24,7 @@ var AddCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := add(args); err != nil {
-			cmd.Println(err.Error())
+      displayErrorAndExit(cmd, err)
 		}
 	},
 }

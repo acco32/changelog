@@ -8,6 +8,8 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/smallfish/simpleyaml"
 )
 
 //Changelog Template for type of change being applied
@@ -42,8 +44,19 @@ var (
 	Other = Changelog{Name: "other", Description: "Other"}
 )
 
-//DefaultChangelogFolder All entries are stored in an unreleased folder.
-const DefaultChangelogFolder = "unreleased"
+const (
+	//DefaultChangelogFolder All entries are stored in an unreleased folder.
+	DefaultChangelogFolder = "unreleased"
+
+	// DefaultChangelogFile The name of the file to append rendered content
+	DefaultChangelogFile = "CHANGELOG.md"
+
+	// DefaultChangelogDataFile The name of the file to append unreleased data
+	DefaultChangelogDataFile = "changelog.yml"
+
+	// DefaultChangelogHeader The header text to seek which is where we append changes
+	DefaultChangelogHeader = "# Changelog"
+)
 
 //CreateChangelogEntry Create a new entry for the changelog. Usually done on a new branch.
 func CreateChangelogEntry(file Entry, unreleasedFolder string) error {
@@ -68,7 +81,12 @@ func CreateChangelogEntry(file Entry, unreleasedFolder string) error {
 		return err
 	}
 
-	yaml := fmt.Sprintf("-\n\ttitle: %s\n\tauthor: %s\n\ttype: %s\n", file.Title, file.Author, file.Type.Name)
+	yaml := fmt.Sprintf(`-
+  title: %s
+  author: %s
+  type: %s
+  `, file.Title, file.Author, file.Type.Name)
+
 	if _, err := f.WriteString(yaml); err != nil {
 		return err
 	}
@@ -96,7 +114,7 @@ func validAuthor(author string) bool {
 }
 
 // CreateChangelog Gather all unreleased entries and create latest log
-func CreateChangelog(unreleasedFolder string) error {
+func CreateChangelog(unreleasedFolder string, outputFilename string) error {
 
 	_, err := os.Stat(unreleasedFolder)
 	if err != nil {
@@ -108,9 +126,9 @@ func CreateChangelog(unreleasedFolder string) error {
 		return fmt.Errorf("Unable to read files in unreleased folder: %s", err.Error())
 	}
 
-  if len(files) == 0 {
-    return fmt.Errorf("At least one file must exist")
-  }
+	if len(files) == 0 {
+		return fmt.Errorf("At least one file must exist")
+	}
 
 	var buffer bytes.Buffer
 
@@ -123,10 +141,84 @@ func CreateChangelog(unreleasedFolder string) error {
 		buffer.WriteString(string(dat))
 	}
 
-	cl, _ := os.Create("changelog.yml")
+	cl, _ := os.Create(outputFilename)
 	defer cl.Close()
 
 	cl.Write(buffer.Bytes())
 
 	return nil
+}
+
+// Text Generate a text representation of latest changes
+func Text(outputFilename string) (string, error) {
+	data, err := ioutil.ReadFile(outputFilename)
+	if err != nil {
+		return "", err
+	}
+
+	y, err := simpleyaml.NewYaml(data)
+	if err != nil {
+		return "", fmt.Errorf("Problem reading data file: %s", err.Error())
+	}
+
+	if !y.IsArray() {
+		return "", fmt.Errorf("input yaml has incorrect schema layout. Expected only an list of items")
+	}
+
+	text := ""
+	totalElements, _ := y.GetArraySize()
+	for cl := 0; cl < totalElements; cl++ {
+		featureTitle, _ := y.GetIndex(cl).Get("title").String()
+		featureType, _ := y.GetIndex(cl).Get("type").String()
+		text = fmt.Sprintf("%s%12s | %s\n", text, featureType, featureTitle)
+	}
+
+	return text, nil
+}
+
+// Markdown Generate markdown representation of latest changes
+func Markdown(dataFilename string) (string, error) {
+	data, err := ioutil.ReadFile(dataFilename)
+	if err != nil {
+		return "", err
+	}
+
+	y, err := simpleyaml.NewYaml(data)
+	if err != nil {
+		return "", fmt.Errorf("Problem reading data file: %s", err.Error())
+	}
+
+	if !y.IsArray() {
+		return "", fmt.Errorf("input yaml has incorrect schema layout. Expected only an list of items")
+	}
+
+	text := ""
+	totalElements, _ := y.GetArraySize()
+	for cl := 0; cl < totalElements; cl++ {
+		featureTitle, _ := y.GetIndex(cl).Get("title").String()
+		featureType, _ := y.GetIndex(cl).Get("type").String()
+		text = fmt.Sprintf("%s**%s** | %s  \n", text, strings.ToUpper(featureType), featureTitle)
+	}
+	return text, nil
+}
+
+// AppendChanges Add the latest changes to current changelog file
+func AppendChanges(changelogFile string, changes string) error {
+	_, err := os.Stat(changelogFile)
+	if err != nil {
+		return fmt.Errorf("%s not found", changelogFile)
+	}
+
+	clf, err := ioutil.ReadFile(changelogFile)
+	if err != nil {
+		return fmt.Errorf("Problem reading %s file", changelogFile)
+	}
+
+	text := string(clf)
+	if !strings.Contains(text, DefaultChangelogHeader) {
+		return fmt.Errorf("Missing Changelog Header, \"%s\", in %s file", DefaultChangelogHeader, changelogFile)
+	}
+
+  newChanges := strings.Replace(text, DefaultChangelogHeader, fmt.Sprintf("%s\n\n%s", DefaultChangelogHeader, changes), 1)
+  return ioutil.WriteFile(changelogFile, []byte(newChanges), 0644)
 }
