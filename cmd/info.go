@@ -7,7 +7,7 @@ import (
 )
 
 
-var version = "0.0.0"
+var version = "0.1.0"
 var copyright = "© 2018 Matthew Moore"
 var licence = "MIT Licence"
 

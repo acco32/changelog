@@ -86,11 +86,7 @@ func CreateChangelogEntry(file Entry, unreleasedFolder string) error {
 		return err
 	}
 
-	yaml := fmt.Sprintf(`-
-  title: %s
-  author: %s
-  type: %s
-  `, file.Title, file.Author, file.Type.Name)
+	yaml := fmt.Sprintf("-\n  title: %s\n  author: %s\n  type: %s\n", file.Title, file.Author, file.Type.Name)
 
 	if _, err := f.WriteString(yaml); err != nil {
 		return err
@@ -175,7 +171,7 @@ func Text(version string, outputFilename string) (string, error) {
 		return "", fmt.Errorf("input yaml has incorrect schema layout. Expected only an list of items")
 	}
 
-	text := fmt.Sprintf("%s\n\n", version)
+	text := fmt.Sprintf("%s:\n", version)
 	totalElements, _ := y.GetArraySize()
 	for cl := 0; cl < totalElements; cl++ {
 		featureTitle, _ := y.GetIndex(cl).Get("title").String()
@@ -212,7 +208,7 @@ func Markdown(version string, dataFilename string) (string, error) {
 	for cl := 0; cl < totalElements; cl++ {
 		featureTitle, _ := y.GetIndex(cl).Get("title").String()
 		featureType, _ := y.GetIndex(cl).Get("type").String()
-		text = fmt.Sprintf("%s**%s** | %s  \n", text, strings.ToUpper(featureType), featureTitle)
+		text = fmt.Sprintf("%s**%s**  %s  \n", text, strings.ToUpper(featureType), featureTitle)
 	}
 	return text, nil
 }

@@ -29,3 +29,23 @@ A command line utility to create changelogs. A variation of the [changelog utili
     - Unreleased folder will be deleted
     - Can optionally keep the yaml files
 7. Cake
+
+## Development
+
+Once you are satisfied with the current version of the code run the following:
+
+```shell
+tusk test
+tusk release --version=X.X.X
+git add -u
+git tag vX.X.X
+git commit -m"Latest release"
+```
+
+This performs the following:
+- Merge all elements into `changelog.yml`
+- Add all elements to `CHANGELOG.md`
+- copy the latest version to `tools` folder
+- Add all the updated file (includes the version in source code and the tool itself)
+- Tag the latest commit
+- Submit changes

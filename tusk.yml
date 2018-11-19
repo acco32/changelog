@@ -30,3 +30,4 @@ tasks:
         - sed -i -e "s/0.0.0/${version}/" cmd/info.go
         - dep ensure -vendor-only
         - go build -o build/${name} main.go
+        - cp build/${name} tools/${name}
