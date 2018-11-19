@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestErrorWhenNoChangelogFile(t *testing.T) {
+func TestErrorWhenNoVersionString(t *testing.T) {
 	releaseRootCmd := &cobra.Command{Use: "changelog"}
 	releaseRootCmd.AddCommand(cmd.ReleaseCmd)
 
 	_, out, err := executeCommandC(releaseRootCmd, "release")
 	assert.Contains(t, out, "Error")
-	assert.Nil(t, err)
+	assert.Error(t, err)
 }

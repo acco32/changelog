@@ -93,7 +93,7 @@ func TestErrorWhenChangelogDataFileHasBadDataFormat(t *testing.T) {
 	data := []byte{25, 85, 6, 89, 54, 13, 52, 10, 52}
 
 	ioutil.WriteFile(unreleasedDataFile, data, 0644)
-	str, err := changelog.Text(unreleasedDataFile)
+	str, err := changelog.Text("", unreleasedDataFile)
 	assert.Empty(t, str)
 	assert.Error(t, err)
 
@@ -106,7 +106,7 @@ func TestErrorWhenChangelogDataFileIsNotArrayInRootNode(t *testing.T) {
 
 	data := []byte("name: author\nage: 99\nfloat: 3.14159")
 	ioutil.WriteFile(unreleasedDataFile, data, 0644)
-	str, err := changelog.Text(unreleasedDataFile)
+	str, err := changelog.Text("", unreleasedDataFile)
 	assert.Empty(t, str)
 	assert.Error(t, err)
 
@@ -132,7 +132,7 @@ data:
 `)
 
 	ioutil.WriteFile(unreleasedDataFile, data, 0644)
-	str, err := changelog.Text(unreleasedDataFile)
+	str, err := changelog.Text("", unreleasedDataFile)
 	assert.Empty(t, str)
 	assert.Error(t, err)
 
@@ -156,7 +156,7 @@ func TestCreateUnreleasedChangelogText(t *testing.T) {
 	ioutil.WriteFile(unreleasedDataFile, data, 0644)
 	os.Stat(unreleasedDataFile)
 
-	str, err := changelog.Text(unreleasedDataFile)
+	str, err := changelog.Text("vX.X.X", unreleasedDataFile)
 	assert.NotEmpty(t, str)
 	assert.NoError(t, err)
 
@@ -180,7 +180,7 @@ func TestCreateUnreleasedChangelogMarkdown(t *testing.T) {
 	ioutil.WriteFile(unreleasedDataFile, data, 0644)
 	os.Stat(unreleasedDataFile)
 
-	str, err := changelog.Markdown(unreleasedDataFile)
+	str, err := changelog.Markdown("vX.X.X", unreleasedDataFile)
 	assert.NotEmpty(t, str)
 	assert.NoError(t, err)
 
@@ -223,7 +223,7 @@ func TestAppendChanges(t *testing.T) {
 	ioutil.WriteFile(unreleasedDataFile, data, 0644)
 	os.Stat(unreleasedDataFile)
 
-	str, err := changelog.Markdown(unreleasedDataFile)
+	str, err := changelog.Markdown("vX.X.X", unreleasedDataFile)
 	assert.NotEmpty(t, str)
 	assert.NoError(t, err)
 
@@ -231,4 +231,16 @@ func TestAppendChanges(t *testing.T) {
 	assert.NoError(t, err)
 	os.Remove(changelogFile)
 	os.Remove(unreleasedDataFile)
+}
+
+func TestVersionCannotBeEmptyInMarkdown(t *testing.T){
+  str, err := changelog.Markdown("", "")
+  assert.Empty(t, str)
+  assert.Error(t, err)
+}
+
+func TestVersionCannotBeEmptyInText(t *testing.T){
+  str, err := changelog.Text("", "")
+  assert.Empty(t, str)
+  assert.Error(t, err)
 }

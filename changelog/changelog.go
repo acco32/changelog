@@ -18,6 +18,11 @@ type Changelog struct {
 	Description string
 }
 
+// ToString Prints friendly description
+func (c *Changelog) ToString() string {
+	return fmt.Sprintf("%12s - %s", c.Name, c.Description)
+}
+
 //Entry A changelog entry
 type Entry struct {
 	Title  string
@@ -33,7 +38,7 @@ var (
 	//Changed Feature change
 	Changed = Changelog{Name: "changed", Description: "Feature change"}
 	//Deprecated New deprecation
-	Deprecated = Changelog{Name: "deprecated", Description: "New deprecation"}
+	Deprecated = Changelog{Name: "deprecated", Description: "Feature deprecation"}
 	//Removed Feature removal
 	Removed = Changelog{Name: "removed", Description: "Feature removal"}
 	//Security Security Fix
@@ -150,7 +155,12 @@ func CreateChangelog(unreleasedFolder string, outputFilename string) error {
 }
 
 // Text Generate a text representation of latest changes
-func Text(outputFilename string) (string, error) {
+func Text(version string, outputFilename string) (string, error) {
+
+	if version == "" {
+		return "", errors.New("version string cannot be empty")
+	}
+
 	data, err := ioutil.ReadFile(outputFilename)
 	if err != nil {
 		return "", err
@@ -165,7 +175,7 @@ func Text(outputFilename string) (string, error) {
 		return "", fmt.Errorf("input yaml has incorrect schema layout. Expected only an list of items")
 	}
 
-	text := ""
+	text := fmt.Sprintf("%s\n\n", version)
 	totalElements, _ := y.GetArraySize()
 	for cl := 0; cl < totalElements; cl++ {
 		featureTitle, _ := y.GetIndex(cl).Get("title").String()
@@ -177,7 +187,12 @@ func Text(outputFilename string) (string, error) {
 }
 
 // Markdown Generate markdown representation of latest changes
-func Markdown(dataFilename string) (string, error) {
+func Markdown(version string, dataFilename string) (string, error) {
+
+	if version == "" {
+		return "", errors.New("version string cannot be empty")
+	}
+
 	data, err := ioutil.ReadFile(dataFilename)
 	if err != nil {
 		return "", err
@@ -192,7 +207,7 @@ func Markdown(dataFilename string) (string, error) {
 		return "", fmt.Errorf("input yaml has incorrect schema layout. Expected only an list of items")
 	}
 
-	text := ""
+	text := fmt.Sprintf("## %s\n\n", version)
 	totalElements, _ := y.GetArraySize()
 	for cl := 0; cl < totalElements; cl++ {
 		featureTitle, _ := y.GetIndex(cl).Get("title").String()
@@ -219,6 +234,6 @@ func AppendChanges(changelogFile string, changes string) error {
 		return fmt.Errorf("Missing Changelog Header, \"%s\", in %s file", DefaultChangelogHeader, changelogFile)
 	}
 
-  newChanges := strings.Replace(text, DefaultChangelogHeader, fmt.Sprintf("%s\n\n%s", DefaultChangelogHeader, changes), 1)
-  return ioutil.WriteFile(changelogFile, []byte(newChanges), 0644)
+	newChanges := strings.Replace(text, DefaultChangelogHeader, fmt.Sprintf("%s\n\n%s", DefaultChangelogHeader, changes), 1)
+	return ioutil.WriteFile(changelogFile, []byte(newChanges), 0644)
 }

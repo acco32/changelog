@@ -12,19 +12,27 @@ var changelogType changelog.Changelog
 var title string
 
 func init() {
-  AddCmd.Flags().StringVarP(&author, "author", "a", "", "Individual creating feature.")
+	AddCmd.Flags().StringVarP(&author, "author", "a", "", "Individual creating feature. Limited to 80 characters.")
 	AddCmd.MarkFlagRequired("author")
-	AddCmd.Flags().StringVarP(&title, "title", "t", "", "Feature description. Space will be replaced by underscores.")
+	AddCmd.Flags().StringVarP(&title, "title", "t", "", "Description. Space will be replaced by underscores. Limited to 120 characters.")
 	AddCmd.MarkFlagRequired("title")
 }
 
 var AddCmd = &cobra.Command{
-	Use:   "add",
-	Short: "add new changelog type",
-	Args:  cobra.ExactArgs(1),
+	Use:   "add [TYPE]",
+	Short: "Add new changelog TYPE",
+	Long: fmt.Sprintf("Add new changelog TYPE from:\n\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		changelog.New.ToString(),
+		changelog.Fixed.ToString(),
+		changelog.Changed.ToString(),
+		changelog.Deprecated.ToString(),
+		changelog.Performance.ToString(),
+		changelog.Security.ToString(),
+		changelog.Removed.ToString()),
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := add(args); err != nil {
-      displayErrorAndExit(cmd, err)
+			displayErrorAndExit(cmd, err)
 		}
 	},
 }

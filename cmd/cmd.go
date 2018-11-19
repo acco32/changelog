@@ -5,5 +5,5 @@ import (
 )
 
 func displayErrorAndExit(cmd *cobra.Command, e error) {
-	cmd.Printf("Error: %s", e.Error())
+	cmd.Printf("Error: %s\n", e.Error())
 }
